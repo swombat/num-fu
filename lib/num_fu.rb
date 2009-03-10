@@ -7,10 +7,10 @@ module NumFu
       options[:min_size]         ||= 1
       options[:max_size]         ||= 2.gigabytes
       
-      self.attachment_options = options
-      
       extend ClassMethods unless (class << self; included_modules; end).include?(ClassMethods)
       include InstanceMethods unless included_modules.include?(InstanceMethods)
+
+      self.attachment_options = options      
     end
   end
   

@@ -1,6 +1,6 @@
 h1. What is Num-fu?
 
-Num-fu is a plugin build for "Woobius":http://www.woobius.com, which handles uploads coming via "nginx's upload module":http://www.grid.net.ru/nginx/upload.en.html. More info on that upload module "here":http://brainspl.at/articles/2008/07/20/nginx-upload-module.
+Num-fu is a plugin built for "Woobius":http://www.woobius.com, which handles uploads coming via "nginx's upload module":http://www.grid.net.ru/nginx/upload.en.html. More info on that upload module "here":http://brainspl.at/articles/2008/07/20/nginx-upload-module.
 
 It's worth noting that this is not a straightforward adaptation of AttachmentFu to the Nginx Upload Module. I've picked out the functionality that we are actually using, and much of AttachmentFu has been left aside. This plugin has perhaps 5% of the functionality of Attachment-Fu, and no intention to build in things like image processing, S3 support, thumbnails, etc.
 
