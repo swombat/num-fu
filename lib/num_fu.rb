@@ -18,7 +18,6 @@ module NumFu
     # Performs common validations for attachment models.
     def validates_as_attachment
       validates_presence_of :size, :content_type, :filename, :original_filename
-      validate              :attachment_attributes_valid?
     end
     
     def self.extended(base)
@@ -51,11 +50,21 @@ module NumFu
     end
 
     def save_to_storage
-      if File.file?(@temp_path)
+      if @temp_path && File.file?(@temp_path)
         FileUtils.mkdir_p(File.dirname(full_filename))
         File.cp(@temp_path, full_filename)
         File.chmod(attachment_options[:chmod] || 0744, full_filename)
+      else
+        RAILS_DEFAULT_LOGGER.debug "========= no temp path? #{@temp_path}"
       end
+    end
+    
+    def delete
+      self.update_attribute(:deleted_at, Time.now)
+    end
+    
+    def delete_file
+      File.delete(self.full_filename) if File.exists?(self.full_filename)
     end
     
   protected
