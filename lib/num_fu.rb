@@ -1,5 +1,7 @@
 module NumFu
-  
+  @@tempfile_path      = File.join(RAILS_ROOT, 'tmp', 'attachment_fu')
+  mattr_writer :tempfile_path
+
   module ActMethods
     def has_attachment(options = {})
       options[:min_size]         ||= 1
@@ -24,7 +26,6 @@ module NumFu
       base.before_validation :set_size_from_temp_path
       base.after_save :save_to_storage
       # base.after_destroy :destroy_file
-      base.after_validation :process_attachment
     end
   end
   
@@ -80,6 +81,18 @@ module NumFu
     def full_filename
       file_system_path = self.attachment_options[:path_prefix].to_s
       File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename))
+    end
+
+    def write_to_temp_file(data, temp_base_name)
+      returning Tempfile.new(temp_base_name, NumFu.tempfile_path) do |tmp|
+        tmp.binmode
+        tmp.write data
+        tmp.close
+      end
+    end
+    
+    def set_size_from_temp_path
+      self.size = File.size(temp_path)
     end
   end
 end
