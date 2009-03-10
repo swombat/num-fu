@@ -53,7 +53,7 @@ module NumFu
     def save_to_storage
       if File.file?(@temp_path)
         FileUtils.mkdir_p(File.dirname(full_filename))
-        File.cp(temp_path, full_filename)
+        File.cp(@temp_path, full_filename)
         File.chmod(attachment_options[:chmod] || 0744, full_filename)
       end
     end
@@ -92,7 +92,7 @@ module NumFu
     end
     
     def set_size_from_temp_path
-      self.size = File.size(temp_path)
+      self.size = File.size(@temp_path)
     end
   end
 end
