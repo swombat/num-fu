@@ -33,6 +33,8 @@ module NumFu
     def uploaded_data=(file_data)
       return nil if file_data.nil? || file_data.size == 0 
       
+      RAILS_DEFAULT_LOGGER.debug "=============== #{file_data.inspect}"
+      
       self.content_type           = file_data.content_type
       self.original_filename      = file_data.original_filename
       prefix                      = "#{Digest::MD5.hexdigest(Time.now.to_s + rand(99999).to_s)[0..15]}"
