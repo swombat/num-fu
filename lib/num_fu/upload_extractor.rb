@@ -6,9 +6,9 @@ module NumFu
     def extract_upload(name="file")
       if params["#{name}.path"]
         fake_upload_data = FakeUploadData.new
-        fake_upload_data.path = params["#{name}.path"]
-        fake_upload_data.original_filename = params["#{name}.original_filename"]
-        fake_upload_data.content_type = params["#{name}.content_type"]
+        fake_upload_data.path = params["#{name}"]["uploaded_data"][".path"]
+        fake_upload_data.original_filename = params["#{name}"]["uploaded_data"][".name"]
+        fake_upload_data.content_type = params["#{name}"]["uploaded_data"][".content_type"]
         params["#{name}"][:uploaded_data] = fake_upload_data
       end
     end

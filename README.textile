@@ -53,7 +53,7 @@ location /upload {
 	upload_set_form_field $upload_field_name.path "$upload_tmp_path";
 
 	upload_pass_form_field "^_session_id$";
-	upload_pass_form_field "^folder[id]$";
+	upload_pass_form_field "^folder\[id\]$";
 	
 	break;
 }
@@ -66,11 +66,12 @@ location /process_upload {
 }
 </pre>
 
-Worth noting (from "here":http://www.motionstandingstill.com/nginx-upload-awesomeness/2008-08-13/):
+Worth noting:
 
 * You have to explicitly tell nginx what fields to pass, if there are additional fields, on top of the file itself (and there likely will be things like session id)
 * The location that you post to has to be of a direct route, off root - not /controller/action
-* make sure you include the <code>client_max_body_size</code> and the <code>break</code>s, or you may hit problems.
+* Make sure you include the <code>client_max_body_size</code> and the <code>break</code>s, or you may hit problems
+* To pass railsy parameters within parameters (e.g. <code>folder[id]</code>), don't forget to escape the <code>[]</code> in the regular expression.
 
 h2. Schema setup
 
