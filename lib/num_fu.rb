@@ -1,7 +1,8 @@
 module NumFu
-  @@tempfile_path      = File.join(RAILS_ROOT, 'tmp', 'attachment_fu')
-  mattr_writer :tempfile_path
-
+  @@tempfile_path           = File.join(RAILS_ROOT, 'tmp', 'attachment_fu')
+  @@use_nginx_upload_module = false
+  mattr_writer                :tempfile_path,
+                              :use_nginx_upload_module
   module ActMethods
     def has_attachment(options = {})
       options[:min_size]         ||= 1
@@ -54,8 +55,6 @@ module NumFu
         FileUtils.mkdir_p(File.dirname(full_filename))
         File.cp(@temp_path, full_filename)
         File.chmod(attachment_options[:chmod] || 0744, full_filename)
-      else
-        RAILS_DEFAULT_LOGGER.debug "========= no temp path? #{@temp_path}"
       end
     end
     
@@ -104,4 +103,9 @@ module NumFu
       self.size = File.size(@temp_path)
     end
   end
+  
+  class FakeUploadData
+    attr_accessor :filename, :content_type, :path, :original_filename
+  end
+  
 end

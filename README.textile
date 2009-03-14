@@ -1,6 +1,6 @@
 h1. What is Num-fu?
 
-Num-fu is a plugin built for "Woobius":http://www.woobius.com, which handles uploads coming via "nginx's upload module":http://www.grid.net.ru/nginx/upload.en.html. More info on that upload module "here":http://brainspl.at/articles/2008/07/20/nginx-upload-module.
+Num-fu is a plugin built for "Woobius":http://www.woobius.com, which handles uploads coming via "nginx's upload module":http://www.grid.net.ru/nginx/upload.en.html. More info on that upload module "here":http://brainspl.at/articles/2008/07/20/nginx-upload-module and "here":http://www.motionstandingstill.com/nginx-upload-awesomeness/2008-08-13/.
 
 It's worth noting that this is not a straightforward adaptation of AttachmentFu to the Nginx Upload Module. I've picked out the functionality that we are actually using, and much of AttachmentFu has been left aside. This plugin has perhaps 5% of the functionality of Attachment-Fu, and no intention to build in things like image processing, S3 support, thumbnails, etc.
 
@@ -12,7 +12,7 @@ h1. How can I use this?
 
 h2. Usage:
 
-p. Your model should look something like this:
+Your model should look something like this:
 
 <pre>
 class FileReference < ActiveRecord::Base
@@ -20,6 +20,53 @@ class FileReference < ActiveRecord::Base
                   	:path_prefix  => STORAGE_FOLDER
 end
 </pre>
+
+In your controller, add an "extract_upload" call before processing the upload, to ensure that your code works whether or not nginx is active:
+
+<pre>
+def upload
+    extract_upload  :file_reference
+	FileReference.create(params[:file_reference])
+end  
+</pre>
+
+And add the following to your nginx config:
+
+<pre>
+location /upload
+{
+	# Pass altered request body to this location
+	# NTW: This seems to be ignored and the above location is used instead
+	upload_pass /dummy;
+	
+	# Store files to this directory
+	# The directory is hashed, subdirectories 0 1 2 3 4 5 6 7 8 9 should exist
+	upload_store /tmp/uploads 1;
+	
+	# Allow uploaded files to be read by everyone
+	upload_store_access user:rw group:rw all:rw;
+	
+	# Set specified fields in request body
+	# this puts the orginal filename, new path+filename and content type in the requests params
+	upload_set_form_field $upload_field_name.name "$upload_file_name";
+	upload_set_form_field $upload_field_name.content_type "$upload_content_type";
+	upload_set_form_field $upload_field_name.path "$upload_tmp_path";
+
+	upload_pass_form_field "^_session_id$";
+	upload_pass_form_field "^folder[id]$";
+}
+
+# dummy location that needs to be defined. :-(
+location /dummy
+{
+}
+</pre>
+
+Worth noting (from "here":http://www.motionstandingstill.com/nginx-upload-awesomeness/2008-08-13/):
+
+* You have to explicitly tell nginx what fields to pass, if there are additional fields, on top of the file itself (and there likely will be things like session id)
+* The upload_pass command is ignored in v2.04 of the module, but you still have to include it
+* The location that you post to has to be of a direct route, off root - not /controller/action
 
 h2. Schema setup
 
