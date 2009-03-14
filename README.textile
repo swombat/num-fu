@@ -33,15 +33,15 @@ end
 And add the following to your nginx config:
 
 <pre>
-location /upload
-{
+location /upload {
+	
+	client_max_body_size 2048m;
+	
 	# Pass altered request body to this location
-	# NTW: This seems to be ignored and the above location is used instead
-	upload_pass /dummy;
+	upload_pass /process_upload;
 	
 	# Store files to this directory
-	# The directory is hashed, subdirectories 0 1 2 3 4 5 6 7 8 9 should exist
-	upload_store /tmp/uploads 1;
+	upload_store /tmp/uploads;
 	
 	# Allow uploaded files to be read by everyone
 	upload_store_access user:rw group:rw all:rw;
@@ -54,19 +54,23 @@ location /upload
 
 	upload_pass_form_field "^_session_id$";
 	upload_pass_form_field "^folder[id]$";
+	
+	break;
 }
 
 # dummy location that needs to be defined. :-(
-location /dummy
-{
+location /process_upload {
+	client_max_body_size 2048m;
+	proxy_pass http://upstream_server;
+	break;
 }
 </pre>
 
 Worth noting (from "here":http://www.motionstandingstill.com/nginx-upload-awesomeness/2008-08-13/):
 
 * You have to explicitly tell nginx what fields to pass, if there are additional fields, on top of the file itself (and there likely will be things like session id)
-* The upload_pass command is ignored in v2.04 of the module, but you still have to include it
 * The location that you post to has to be of a direct route, off root - not /controller/action
+* make sure you include the <code>client_max_body_size</code> and the <code>break</code>s, or you may hit problems.
 
 h2. Schema setup
 
@@ -82,3 +86,16 @@ t.string   "original_filename"
 t.datetime "deleted_at"
 </pre>
 
+h2. How are the files stored?
+
+Num-Fu stores the files in whatever directory you pass as the <code>path_prefix</code> option. It organises them in subdirectories so that there are no more than 256 files per subdirectory. The folder structure is capable of supporting up to 10000 * 10000 * 256 = 25.6 billion files, via a structure like:
+
+<pre>
+	0001/0001/c35e6f0358ce7390-IMG_A.JPG
+	0001/0025/d0a706593750e972-IMG_B.JPG
+	0123/0123/dcc3b7d5fc5e146f-IMG_C.JPG
+</pre>
+
+The folder structure will start at 0001/0001 and fill out all the way until 9999/9999. I have _not_ tested what happens when you exceed that limit... if you are storing 25 billion files, however, I would suggest you look into writing your own storage handling code (perhaps S3 storage might be more appropriate than filesystem storage).
+
+The 16-alphanumeric-digit random string prepended to each filename is there to ensure, within reason, that there are no collisions between files with the same name. It is technically possible that two files uploaded with the same filename around the same time will end up in the same directory and overwrite each other. However, based on the usage patterns that we are seeing on Woobius, it's probably more productive to worry about the Earth exploding spontaneously.
