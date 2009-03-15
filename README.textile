@@ -21,13 +21,17 @@ class FileReference < ActiveRecord::Base
 end
 </pre>
 
-In your controller, add an "extract_upload" call before processing the upload, to ensure that your code works whether or not nginx is active:
+In your controller, add an <code>extract_upload</code> call before processing the upload, to ensure that your code works whether or not nginx is active:
 
 <pre>
-def upload
-    extract_upload  :file_reference
-	FileReference.create(params[:file_reference])
-end  
+class MyController < ApplicationController
+	include NumFu::UploadExtractor
+
+	def upload
+	    extract_upload  :file_reference
+		FileReference.create(params[:file_reference])
+	end
+end
 </pre>
 
 And add the following to your nginx config:
