@@ -12,7 +12,7 @@ module NumFu
         fake_upload_data.size = File.size(fake_upload_data.path)
         params["#{name}"]["uploaded_data"] = fake_upload_data
       end
-    rescue Error
+    rescue ::NoMethodError
       # nothing
     end
     
