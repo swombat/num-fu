@@ -107,7 +107,7 @@ module NumFu
   end
   
   class FakeUploadData
-    attr_accessor :filename, :content_type, :path, :original_filename
+    attr_accessor :filename, :content_type, :path, :original_filename, :size
   end
   
 end
