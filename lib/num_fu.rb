@@ -67,6 +67,11 @@ module NumFu
     def delete_file
       File.delete(self.full_filename) if File.exists?(self.full_filename)
     end
+
+    def full_filename
+      file_system_path = self.attachment_options[:path_prefix].to_s
+      File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename))
+    end
     
   protected
     def sanitize_filename(filename)
@@ -86,11 +91,6 @@ module NumFu
 
     def partitioned_path(*args)
       ("%08d" % (id >> 8)).scan(/..../) + args
-    end
-
-    def full_filename
-      file_system_path = self.attachment_options[:path_prefix].to_s
-      File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename))
     end
 
     def write_to_temp_file(data, temp_base_name)
