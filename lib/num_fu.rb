@@ -23,7 +23,7 @@ module NumFu
     
     def self.extended(base)
       base.class_inheritable_accessor :attachment_options
-      base.before_validation :set_size_from_temp_path
+      base.before_validation :set_size
       base.after_save :save_to_storage
       # base.after_destroy :destroy_file
     end
@@ -32,8 +32,6 @@ module NumFu
   module InstanceMethods
     def uploaded_data=(file_data)
       return nil if file_data.nil? || file_data.size == 0 
-      
-      RAILS_DEFAULT_LOGGER.debug "=============== #{file_data.inspect}"
       
       self.content_type           = file_data.content_type
       self.original_filename      = file_data.original_filename
@@ -101,8 +99,12 @@ module NumFu
       end
     end
     
-    def set_size_from_temp_path
-      self.size = File.size(@temp_path)
+    def set_size
+      self.size = if File.exists?(@temp_path)
+        File.size(@temp_path)
+      elsif File.exists?(self.full_filename)
+        File.size(self.full_filename)
+      end
     end
   end
   
