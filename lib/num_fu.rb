@@ -54,7 +54,7 @@ module NumFu
       if @temp_path && File.file?(@temp_path)
         FileUtils.mkdir_p(File.dirname(full_filename))
         File.mv(@temp_path, full_filename)
-        File.chmod(attachment_options[:chmod] || 0744, full_filename)
+        File.chmod(attachment_options[:chmod] || 0666, full_filename)
       end
     end
     
