@@ -1,3 +1,5 @@
+require 'ftools'
+
 module NumFu
   @@tempfile_path           = File.join(RAILS_ROOT, 'tmp', 'attachment_fu')
   @@use_nginx_upload_module = false
