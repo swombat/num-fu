@@ -102,10 +102,10 @@ module NumFu
     end
     
     def set_size
-      self.size = if File.exists?(@temp_path)
-        File.size(@temp_path)
+      if @temp_path && File.exists?(@temp_path)
+        self.size = File.size(@temp_path)
       elsif File.exists?(self.full_filename)
-        File.size(self.full_filename)
+        self.size = File.size(self.full_filename)
       end
     end
   end
