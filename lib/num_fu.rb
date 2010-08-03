@@ -58,6 +58,8 @@ module NumFu
         File.mv(@temp_path, full_filename)
         File.chmod(attachment_options[:chmod] || 0666, File.expand_path(full_filename))
       end
+    rescue ::Error
+      RAILS_DEFAULT_LOGGER.debug "Failed to chmod #{full_filename}"
     end
     
     def delete
