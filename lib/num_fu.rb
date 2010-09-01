@@ -72,7 +72,7 @@ module NumFu
 
     def full_filename
       file_system_path = self.attachment_options[:path_prefix].to_s
-      File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename))
+      File.expand_path(File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename)))
     end
     
   protected
