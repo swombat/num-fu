@@ -71,6 +71,7 @@ module NumFu
     end
 
     def full_filename
+      return nil if filename.nil?
       file_system_path = self.attachment_options[:path_prefix].to_s
       File.expand_path(File.join(RAILS_ROOT, file_system_path, *partitioned_path(filename)))
     end
